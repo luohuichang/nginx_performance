@@ -1,7 +1,22 @@
+# openresty
+
+	sudo yum install yum-utils
+    sudo yum-config-manager --add-repo https://openresty.org/package/centos/openresty.repo
+    sudo yum install openresty
+
 # webserver
+
 https://eggggger.xyz/2016/10/17/why-http2/
+
 http://wiki.jikexueyuan.com/project/openresty/test/performance_test.html
+
 https://www.jianshu.com/p/e5aef185f0c6
+
+# 可用性判断
+cd ~/nginx_test
+curl http://localhost:1080
+curl -k https://localhost:1443
+curl -k --cert ./conf/client/client.crt --key ./conf/client/client.key https://localhost:2443
 
 # 性能测试
 
@@ -52,16 +67,19 @@ wrk -t 1 -c 1 -C cert.pem ...
 
 
 # 证书生成
+## server证书
+name=server
+openssl genrsa -des3 -out $name.key 1024
 
-openssl genrsa -des3 -out server.key 1024
+openssl req -new -key $name.key -out $name.csr 
 
-openssl req -new -key server.key -out server.csr 
+cp $name.key $name.key.org
+openssl rsa -in $name.key.org -out $name.key
 
-cp server.key server.key.org
-
-openssl rsa -in server.key.org -out server.key
-
-openssl x509 -req -days 365 -in server.csr -signkey server.key -out server.crt
+openssl x509 -req -days 365 -in $name.csr -signkey $name.key -out $name.crt
+## client证书
+name=client
+……
 
 证书编码的转换
 PEM转为DER openssl x509 -in cert.crt -outform der -out cert.der
@@ -132,8 +150,6 @@ http {
 
         error_log /home/lhc/wrktest/logs/error_https2.log warn;
         access_log /home/lhc/wrktest/logs/access_https2.log main;
-
-
 
         ssl_certificate /home/lhc/wrktest/conf/server.crt;
         ssl_certificate_key /home/lhc/wrktest/conf/server.key;
