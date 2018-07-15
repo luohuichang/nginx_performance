@@ -29,9 +29,12 @@ curl -k --cert ./conf/client/client.crt --key ./conf/client/client.key https://l
 [root@centos ~]# make
 [root@centos ~]# ln -s /usr/local/src/wrk/wrk /usr/local/bin
 
-wrk -t 2 -c 50 -d 20 --latency http://localhost:1080
-wrk -t 2 -c 50 -d 20 --latency http://localhost:1443
-wrk -t 2 -c 50 -d 20 -C /home/elb/lhc/wrktest/conf/client/client.pem --latency http://localhost:2443
+url=114.116.75.83
+wrk -t 2 -c 50 -d 20 --latency http://$url:1080
+
+wrk -t 2 -c 50 -d 20 --latency http://$url:1443
+
+wrk -t 2 -c 50 -d 20 -C ./conf/client/client.pem -K ./conf/client/client.key --latency http://$url:2443
 
 参数说明：
 -t 需要模拟的线程数
@@ -92,11 +95,12 @@ openssl x509 -in mycert.crt -out mycert.pem -outform PEM
 # Nginx管理
 
 nginx -p ~/nginxconf/
+nginx -c ~/conf/nginx.conf
 
 kill -QUIT 主进程号
 kill -信号类型 '/usr/nginx/logs/nginx.pid'
 
-/usr/nginx/sbin/nginx -s reload  --重启
+nginx -c ~/conf/nginx.conf -s reload  --重启
 nginx -t -c /usr/nginx/conf/nginx.conf --检查
 
 # Nginx配置
