@@ -35,6 +35,7 @@ wrk -t 2 -c 50 -d 20 --latency http://$url:1080
 wrk -t 2 -c 50 -d 20 --latency http://$url:1443
 
 wrk -t 2 -c 50 -d 20 -C ./conf/client/client.pem -K ./conf/client/client.key --latency http://$url:2443
+wrk -t1 -c1 -d3 -C ./conf/client/client.pem -K ./conf/client/client.key --latency https://$url:2443
 
 参数说明：
 -t 需要模拟的线程数
